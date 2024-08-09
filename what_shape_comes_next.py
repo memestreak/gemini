@@ -59,7 +59,6 @@ message: str = (
   "as the fourth shape? Explain your reasoning with detailed descriptions "
   "of the first shapes.")
 
-IPython.embed()
+# IPython.embed()
 response = chat_session.send_message(message)
 print(response)
-
