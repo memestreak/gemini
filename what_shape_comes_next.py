@@ -15,24 +15,6 @@ import IPython
 
 import google.generativeai as genai
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-# Create the model
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 64,
-  "max_output_tokens": 8192,
-  "response_mime_type": "text/plain",
-}
-
-model = genai.GenerativeModel(
-  model_name="gemini-1.5-flash",
-  generation_config=generation_config,
-  # safety_settings = Adjust safety settings
-  # See https://ai.google.dev/gemini-api/docs/safety-settings
-)
-
 def upload_to_gemini(path: str, mime_type: str=None):
   """Uploads the given file to Gemini.
 
@@ -42,23 +24,47 @@ def upload_to_gemini(path: str, mime_type: str=None):
   print(f"Uploaded file '{file.display_name}' as: {file.uri}")
   return file
 
-files = [
-  upload_to_gemini("what_shape_comes_next.jpg", mime_type="image/jpeg"),
-]
 
-chat_session = model.start_chat(
-  history=[{
-    "role": "user",
-    "parts": [
-      files[0]
-      ]
-    }])
+def do_what_shape_comes_next(model: genai.GenerativeModel):
+  files = [
+    upload_to_gemini("what_shape_comes_next.jpg", mime_type="image/jpeg"),
+  ]
 
-message: str = (
-  "Look at this sequence of three shapes. What shape should come "
-  "as the fourth shape? Explain your reasoning with detailed descriptions "
-  "of the first shapes.")
+  chat_session = model.start_chat(
+    history=[{
+      "role": "user",
+      "parts": [
+        files[0]
+        ]
+      }])
 
-# IPython.embed()
-response = chat_session.send_message(message)
-print(response)
+  message: str = (
+    "Look at this sequence of three shapes. What shape should come "
+    "as the fourth shape? Explain your reasoning with detailed descriptions "
+    "of the first shapes.")
+
+  # IPython.embed()
+  response = chat_session.send_message(message)
+  print(response)
+
+
+if __name__ == "__main__":
+  genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+  # Create the model
+  generation_config: genai.GenerationConfig = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 64,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+  }
+
+  model: genai.GenerativeModel = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+    # safety_settings = Adjust safety settings
+    # See https://ai.google.dev/gemini-api/docs/safety-settings
+  )    
+
+  do_what_shape_comes_next(model)
